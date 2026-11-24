@@ -1,0 +1,407 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hatchery Fertility Calculator</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+/* * {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background: #353535;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 430px;
+    background: #070707;
+    padding: 25px;
+    border-radius: 22px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.07);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.header h1 {
+    color: #bea200;
+    font-size: 25px;
+    margin: 0 0 8px;
+}
+
+.header p {
+    color: #ffffff;
+    font-size: 14px;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    color: #ff5050;
+    font-weight: bold;
+}
+
+input {
+    width: 100%;
+    padding: 15px;
+    font-size: 20px;
+    border: 1px solid #dbe5df;
+    border-radius: 12px;
+    outline: none;
+    background: #f9fbfa;
+}
+
+input:focus {
+    border-color: #2a8056;
+}
+
+.result {
+    margin-top: 25px;
+    background: #1b6042;
+    color: white;
+    padding: 25px 15px;
+    border-radius: 18px;
+    text-align: center;
+}
+
+.result h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: normal;
+    opacity: 0.9;
+}
+
+.result h2 {
+    font-size: 48px;
+    margin: 15px 0 0;
+}
+
+.buttons {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+button {
+    border: none;
+    padding: 15px;
+    font-size: 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.capture {
+    background: #1b6042;
+    color: white;
+}
+
+.reset {
+    background: #e9efeb;
+    color: #345341;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+ */
+/* الصورة المحفوظة */
+#captureArea {
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 18px;
+}
+
+.captureHeader {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.captureHeader h2 {
+    color: #1b6042;
+    margin: 0 0 8px;
+    font-size: 23px;
+}
+
+.captureHeader p {
+    color: #8a978e;
+    font-size: 12px;
+    margin: 0;
+}
+
+.captureResult {
+    text-align: center;
+    background: #1b6042;
+    color: white;
+    border-radius: 15px;
+    padding: 30px 15px;
+}
+
+.captureResult span {
+    font-size: 15px;
+}
+
+.captureResult h1 {
+    font-size: 55px;
+    margin: 15px 0 0;
+}
+
+.captureFooter {
+    text-align: center;
+    border-top: 1px solid #e7ede9;
+    padding-top: 18px;
+    margin-top: 20px;
+    color: #587363;
+    line-height: 1.8;
+}
+
+.captureFooter strong {
+    color: #1b6042;
+    font-size: 16px;
+}
+#captureArea {
+    background: #111111;
+    padding: 25px;
+    border-radius: 18px;
+}
+
+.captureHeader {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.captureHeader h2 {
+    color: #C9A24D;
+    margin: 0 0 8px;
+    font-size: 23px;
+}
+
+.captureHeader p {
+    color: #8F7134;
+    font-size: 12px;
+    margin: 0;
+}
+
+.captureResult {
+    text-align: center;
+    background: #1C1C1C;
+    color: #F5F2E9;
+    border: 1px solid #3B3324;
+    border-radius: 15px;
+    padding: 30px 15px;
+}
+
+.captureResult span {
+    font-size: 15px;
+    color: #C9A24D;
+}
+
+.captureResult h1 {
+    font-size: 55px;
+    margin: 15px 0 0;
+    color: #E8D19A;
+}
+
+.captureFooter {
+    text-align: center;
+    border-top: 1px solid #3B3324;
+    padding-top: 18px;
+    margin-top: 20px;
+    color: #B7B0A0;
+    line-height: 1.8;
+}
+
+.captureFooter strong {
+    color: #C9A24D;
+    font-size: 16px;
+}
+@media (max-width: 380px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 18px;
+    }
+
+    .result h2 {
+        font-size: 40px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>🥚 حساب نسبة الخصوبة</h1>
+        <p>Hatchery Fertility Calculator</p>
+    </div>
+
+    <!-- خانة عدد الأقفاص -->
+    <div class="input-group">
+        <label>عدد الأقفاص المفحوصة</label>
+        <input
+            type="number"
+            id="cages"
+            min="0"
+            placeholder="عدد الأقفاص"
+        >
+    </div>
+
+    <!-- خانة عدد البيض غير المخصب -->
+    <div class="input-group">
+        <label>عدد البيض غير المخصب</label>
+        <input
+            type="number"
+            id="infertile"
+            min="0"
+            placeholder="عدد البيض غير المخصب"
+        >
+    </div>
+
+    <!-- النتيجة الظاهرة للمستخدم -->
+    <div class="result">
+        <h3>نسبة الخصوبة</h3>
+        <h2 id="percentage">0.00%</h2>
+    </div>
+
+    <!-- التقرير الذي يتم تصويره -->
+    <div id="captureArea" style="position:absolute; left:-9999px; top:0; width:380px;">
+
+        <div class="captureHeader">
+            <h2>🥚 Hatchery Report</h2>
+            <p>FERTILITY RESULT</p>
+        </div>
+
+        <div class="captureResult">
+            <span>نسبة الخصوبة</span>
+            <h1 id="imagePercentage">0.00%</h1>
+        </div>
+
+        <div class="captureFooter">
+            <strong>Amir Hassan</strong><br>
+            Programmer & Developer
+        </div>
+
+    </div>
+
+    <div class="buttons">
+        <button class="capture" onclick="captureImage()">
+            📸 التقاط صورة النسبة
+        </button>
+
+        <button class="reset" onclick="resetCalculator()">
+            مسح البيانات
+        </button>
+    </div>
+
+</div>
+
+<script>
+
+const cagesInput = document.getElementById("cages");
+const infertileInput = document.getElementById("infertile");
+
+function calculate() {
+
+    // البيانات المدخلة
+    const cages = Number(cagesInput.value) || 0;
+    const infertile = Number(infertileInput.value) || 0;
+
+    // إجمالي البيض
+    const totalEggs = cages * 150;
+
+    // إضافة 8 بيضات لكل قفص
+    const extraEggs = cages * 8;
+
+    // العاطل النهائي
+    const totalInfertile = infertile + extraEggs;
+
+    // البيض المخصب
+    const fertileEggs = totalEggs - totalInfertile;
+
+    // النسبة
+    let percentage = 0;
+
+    if (totalEggs > 0 && fertileEggs >= 0) {
+        percentage = (fertileEggs / totalEggs) * 100;
+    }
+
+    // عرض النسبة فقط
+    const finalPercentage = percentage.toFixed(2) + "%";
+
+    document.getElementById("percentage").textContent = finalPercentage;
+    document.getElementById("imagePercentage").textContent = finalPercentage;
+}
+
+// تحديث مباشر
+cagesInput.addEventListener("input", calculate);
+infertileInput.addEventListener("input", calculate);
+
+// التقاط صورة
+async function captureImage() {
+
+    if (Number(cagesInput.value) <= 0 || cagesInput.value === "") {
+        alert("أدخل عدد الأقفاص أولاً");
+        return;
+    }
+
+    calculate();
+
+    const area = document.getElementById("captureArea");
+
+    try {
+
+        const canvas = await html2canvas(area, {
+            scale: 3,
+            backgroundColor: "#ffffff"
+        });
+
+        const link = document.createElement("a");
+
+        link.download = "Amir-Hassan-Fertility.png";
+        link.href = canvas.toDataURL("image/png");
+
+        link.click();
+
+    } catch (error) {
+        alert("حدث خطأ أثناء التقاط الصورة");
+    }
+}
+
+// مسح الحقول
+function resetCalculator() {
+    cagesInput.value = "";
+    infertileInput.value = "";
+    calculate();
+}
+
+calculate();
+
+</script>
+
+</body>
+</html>

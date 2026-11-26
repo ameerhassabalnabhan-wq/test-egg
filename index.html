@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Hatchery Fertility Calculator</title>
 
-<script src="https://cloudflare.com"></script>
-
 <style>
 * {
     box-sizing: border-box;
@@ -132,69 +130,59 @@ button:active {
     transform: scale(0.98);
 }
 
-/* تصميم التقرير عند التقاط الصورة */
-#captureArea {
+/* نافذة معاينة وحفظ الصورة */
+#previewModal {
+    display: none;
     position: fixed;
-    top: 0;
-    right: 0;
-    width: 380px;
-    background: #111111;
-    padding: 25px;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 20px;
+}
+
+#previewModal img {
+    max-width: 100%;
+    max-height: 70vh;
     border-radius: 18px;
-    z-index: -999;
-    opacity: 0;
-    pointer-events: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
 }
 
-.captureHeader {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.captureHeader h2 {
-    color: #C9A24D;
-    margin: 0 0 8px;
-    font-size: 23px;
-}
-
-.captureHeader p {
-    color: #8F7134;
-    font-size: 12px;
-    margin: 0;
-}
-
-.captureResult {
-    text-align: center;
-    background: #1C1C1C;
-    color: #F5F2E9;
-    border: 1px solid #3B3324;
-    border-radius: 15px;
-    padding: 30px 15px;
-}
-
-.captureResult span {
-    font-size: 15px;
-    color: #C9A24D;
-}
-
-.captureResult h1 {
-    font-size: 55px;
-    margin: 15px 0 0;
+#previewModal p {
     color: #E8D19A;
-}
-
-.captureFooter {
+    font-size: 14px;
+    margin: 15px 0;
     text-align: center;
-    border-top: 1px solid #3B3324;
-    padding-top: 18px;
-    margin-top: 20px;
-    color: #B7B0A0;
-    line-height: 1.8;
+    line-height: 1.6;
 }
 
-.captureFooter strong {
-    color: #C9A24D;
-    font-size: 16px;
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    max-width: 380px;
+}
+
+.modal-buttons button, .modal-buttons a {
+    flex: 1;
+    text-align: center;
+    text-decoration: none;
+    padding: 13px;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.download-btn {
+    background: #1b6042;
+    color: white;
+}
+
+.close-btn {
+    background: #ff5050;
+    color: white;
 }
 
 @media (max-width: 380px) {
@@ -222,7 +210,6 @@ button:active {
         <p>Hatchery Fertility Calculator</p>
     </div>
 
-    <!-- خانة عدد الأقفاص -->
     <div class="input-group">
         <label>عدد الأقفاص المفحوصة</label>
         <input
@@ -234,7 +221,6 @@ button:active {
         >
     </div>
 
-    <!-- خانة عدد البيض غير المخصب -->
     <div class="input-group">
         <label>عدد البيض غير المخصب</label>
         <input
@@ -246,30 +232,9 @@ button:active {
         >
     </div>
 
-    <!-- النتيجة الظاهرة للمستخدم -->
     <div class="result">
         <h3>نسبة الخصوبة</h3>
         <h2 id="percentage">0.00%</h2>
-    </div>
-
-    <!-- التقرير الذي يتم تصويره -->
-    <div id="captureArea">
-
-        <div class="captureHeader">
-            <h2>🥚 Hatchery Report</h2>
-            <p>FERTILITY RESULT</p>
-        </div>
-
-        <div class="captureResult">
-            <span>نسبة الخصوبة</span>
-            <h1 id="imagePercentage">0.00%</h1>
-        </div>
-
-        <div class="captureFooter">
-            <strong>Amir Hassan</strong><br>
-            Programmer & Developer
-        </div>
-
     </div>
 
     <div class="buttons">
@@ -284,9 +249,20 @@ button:active {
 
 </div>
 
+<!-- نافذة عرض وحفظ الصورة -->
+<div id="previewModal">
+    <img id="resultImg" src="" alt="Fertility Report">
+    <p>اضغط على "تنزيل" أو اضغط مطولاً على الصورة لحفظها في الاستوديو</p>
+    <div class="modal-buttons">
+        <a id="downloadLink" class="download-btn" download="Amir-Hassan-Fertility.png">⬇️ تنزيل</a>
+        <button class="close-btn" onclick="closeModal()">إغلاق</button>
+    </div>
+</div>
+
 <script>
 const cagesInput = document.getElementById("cages");
 const infertileInput = document.getElementById("infertile");
+let currentPercentage = "0.00%";
 
 function calculate() {
     const cages = Number(cagesInput.value) || 0;
@@ -303,16 +279,29 @@ function calculate() {
         percentage = (fertileEggs / totalEggs) * 100;
     }
 
-    const finalPercentage = percentage.toFixed(2) + "%";
-
-    document.getElementById("percentage").textContent = finalPercentage;
-    document.getElementById("imagePercentage").textContent = finalPercentage;
+    currentPercentage = percentage.toFixed(2) + "%";
+    document.getElementById("percentage").textContent = currentPercentage;
 }
 
 cagesInput.addEventListener("input", calculate);
 infertileInput.addEventListener("input", calculate);
 
-async function captureImage() {
+// دالة رسم المستطيل ذو الزوايا الدائرية
+function drawRoundedRect(ctx, x, y, width, height, radius) {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+}
+
+function captureImage() {
     if (Number(cagesInput.value) <= 0 || cagesInput.value === "") {
         alert("أدخل عدد الأقفاص أولاً");
         return;
@@ -320,25 +309,84 @@ async function captureImage() {
 
     calculate();
 
-    const area = document.getElementById("captureArea");
-    area.style.opacity = "1";
+    // إنشاء لوحة رسم عالية الدقة (3x) بدون الحاجة لأي مكتبة خارجية
+    const scale = 3;
+    const width = 380;
+    const height = 390;
 
-    try {
-        const canvas = await html2canvas(area, {
-            scale: 3,
-            backgroundColor: "#111111"
-        });
+    const canvas = document.createElement("canvas");
+    canvas.width = width * scale;
+    canvas.height = height * scale;
 
-        const link = document.createElement("a");
-        link.download = "Amir-Hassan-Fertility.png";
-        link.href = canvas.toDataURL("image/png");
-        link.click();
+    const ctx = canvas.getContext("2d");
+    ctx.scale(scale, scale);
 
-    } catch (error) {
-        alert("حدث خطأ أثناء التقاط الصورة");
-    } finally {
-        area.style.opacity = "0";
-    }
+    // 1. الخلفية الرئيسية الداكنة
+    ctx.fillStyle = "#111111";
+    ctx.fillRect(0, 0, width, height);
+
+    // 2. العنوان الرئيسي
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#C9A24D";
+    ctx.font = "bold 23px Arial, sans-serif";
+    ctx.fillText("🥚 Hatchery Report", width / 2, 52);
+
+    ctx.fillStyle = "#8F7134";
+    ctx.font = "bold 12px Arial, sans-serif";
+    ctx.fillText("FERTILITY RESULT", width / 2, 74);
+
+    // 3. صندوق النتيجة الداخلي
+    drawRoundedRect(ctx, 25, 98, width - 50, 165, 15);
+    ctx.fillStyle = "#1C1C1C";
+    ctx.fill();
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = "#3B3324";
+    ctx.stroke();
+
+    // نص "نسبة الخصوبة"
+    ctx.fillStyle = "#C9A24D";
+    ctx.font = "bold 16px Arial, sans-serif";
+    ctx.fillText("نسبة الخصوبة", width / 2, 138);
+
+    // الرقم الكبير للنسبة
+    ctx.fillStyle = "#E8D19A";
+    ctx.font = "bold 54px Arial, sans-serif";
+    ctx.fillText(currentPercentage, width / 2, 215);
+
+    // 4. الخط الفاصل والتذييل
+    ctx.beginPath();
+    ctx.moveTo(25, 290);
+    ctx.lineTo(width - 25, 290);
+    ctx.strokeStyle = "#3B3324";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.fillStyle = "#C9A24D";
+    ctx.font = "bold 16px Arial, sans-serif";
+    ctx.fillText("Amir Hassan", width / 2, 326);
+
+    ctx.fillStyle = "#B7B0A0";
+    ctx.font = "14px Arial, sans-serif";
+    ctx.fillText("Programmer & Developer", width / 2, 352);
+
+    // تحويل الرسم إلى صورة وعرضها وحفظها
+    const imgData = canvas.toDataURL("image/png");
+
+    document.getElementById("resultImg").src = imgData;
+    document.getElementById("downloadLink").href = imgData;
+    document.getElementById("previewModal").style.display = "flex";
+
+    // محاولة التنزيل التلقائي
+    const link = document.createElement("a");
+    link.download = "Amir-Hassan-Fertility.png";
+    link.href = imgData;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function closeModal() {
+    document.getElementById("previewModal").style.display = "none";
 }
 
 function resetCalculator() {
